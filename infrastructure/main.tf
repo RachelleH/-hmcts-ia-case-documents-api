@@ -18,7 +18,6 @@ locals {
   docmosis_ithc_key_vault_name = "docmosisiaasithckv"
 
   docmosis_key_vault_name      = "${var.env == "prod" ? local.docmosis_prod_key_vault_name : local.docmosis_ithc_key_vault_name}"
-
   docmosis_key_vault_uri       = "https://${local.docmosis_key_vault_name}.vault.azure.net/"
 }
 
