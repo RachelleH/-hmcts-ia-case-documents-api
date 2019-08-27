@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.iacasedocumentsapi.infrastructure.clients;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -12,10 +13,12 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.iacasedocumentsapi.domain.service.DocumentGenerator;
 
+@Slf4j
 @Service
 public class DocmosisDocumentGenerator implements DocumentGenerator {
 
@@ -62,6 +65,15 @@ public class DocmosisDocumentGenerator implements DocumentGenerator {
 
         byte[] documentData;
 
+        log.info("Domosis Endpoint: {} ", docmosisEndpoint);
+        log.info("Domosis RenderURI: {} ", docmosisRenderUri);
+        log.info("Domosis Access: {} ", docmosisAccessKey);
+        log.info("Domosis outputName: {} ", fileNameWithExension);
+        log.info("Domosis outputFormat: {} ", fileExtension.toLowerCase());
+        log.info("Domosis templateName: {} ", templateName);
+
+        log.info("data: {} ", serializedTemplateFieldValues);
+
         try {
 
             documentData =
@@ -71,6 +83,15 @@ public class DocmosisDocumentGenerator implements DocumentGenerator {
                         requestEntity,
                         byte[].class
                     );
+
+        } catch (HttpClientErrorException ex) {
+
+            log.error("HttpClientError Response:  {} ", ex.getResponseBodyAsString());
+
+            throw new DocumentServiceResponseException(
+                "Couldn't generate asylum case documents with docmosis",
+                ex
+            );
 
         } catch (RestClientException clientEx) {
 
