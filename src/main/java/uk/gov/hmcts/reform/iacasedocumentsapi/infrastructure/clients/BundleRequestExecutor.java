@@ -70,23 +70,22 @@ public class BundleRequestExecutor {
 
         } catch (HttpClientErrorException ex) {
 
-            log.error("Bundling HttpClientError Response:  {} ", ex.getResponseBodyAsString());
+            log.error("Bundling HttpClientError Response: {} ", ex.getResponseBodyAsString());
 
             throw new DocumentServiceResponseException(
                 "Couldn't create bundle using API with client error:",
                 ex
             );
+        } catch (RestClientException e) {
+
+            throw new DocumentServiceResponseException(
+                "Couldn't create bundle using API: " + endpoint,
+                e
+            );
         }
-        catch(RestClientException e){
 
-                throw new DocumentServiceResponseException(
-                    "Couldn't create bundle using API: " + endpoint,
-                    e
-                );
-            }
-
-            return response;
-
-        }
+        return response;
 
     }
+
+}
