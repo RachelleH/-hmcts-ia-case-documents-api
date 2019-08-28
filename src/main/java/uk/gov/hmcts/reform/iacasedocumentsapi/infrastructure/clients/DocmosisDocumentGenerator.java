@@ -67,12 +67,7 @@ public class DocmosisDocumentGenerator implements DocumentGenerator {
 
         log.info("Domosis Endpoint: {} ", docmosisEndpoint);
         log.info("Domosis RenderURI: {} ", docmosisRenderUri);
-        log.info("Domosis Access: {} ", docmosisAccessKey);
-        log.info("Domosis outputName: {} ", fileNameWithExension);
-        log.info("Domosis outputFormat: {} ", fileExtension.toLowerCase());
         log.info("Domosis templateName: {} ", templateName);
-
-        log.info("data: {} ", serializedTemplateFieldValues);
 
         try {
 
@@ -86,7 +81,7 @@ public class DocmosisDocumentGenerator implements DocumentGenerator {
 
         } catch (HttpClientErrorException ex) {
 
-            log.error("HttpClientError Response:  {} ", ex.getResponseBodyAsString());
+            log.error("Bundling HttpClientError Response:  {} ", ex.getResponseBodyAsString());
 
             throw new DocumentServiceResponseException(
                 "Couldn't generate asylum case documents with docmosis",

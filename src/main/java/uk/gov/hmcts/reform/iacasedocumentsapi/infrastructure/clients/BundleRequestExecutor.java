@@ -2,12 +2,14 @@ package uk.gov.hmcts.reform.iacasedocumentsapi.infrastructure.clients;
 
 import static java.util.Objects.requireNonNull;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
@@ -17,6 +19,7 @@ import uk.gov.hmcts.reform.iacasedocumentsapi.domain.entities.ccd.callback.Callb
 import uk.gov.hmcts.reform.iacasedocumentsapi.domain.entities.ccd.callback.PreSubmitCallbackResponse;
 import uk.gov.hmcts.reform.iacasedocumentsapi.infrastructure.enties.em.BundleCaseData;
 
+@Slf4j
 @Service
 public class BundleRequestExecutor {
 
@@ -33,8 +36,8 @@ public class BundleRequestExecutor {
     }
 
     public PreSubmitCallbackResponse<BundleCaseData> post(
-            final Callback<BundleCaseData> payload,
-            final String endpoint
+        final Callback<BundleCaseData> payload,
+        final String endpoint
     ) {
 
         requireNonNull(payload, "payload must not be null");
@@ -56,25 +59,34 @@ public class BundleRequestExecutor {
 
         try {
             response =
-                    restTemplate
-                            .exchange(
-                                    endpoint,
-                                    HttpMethod.POST,
-                                    requestEntity,
-                                    new ParameterizedTypeReference<PreSubmitCallbackResponse<BundleCaseData>>() {
-                                    }
-                            ).getBody();
+                restTemplate
+                    .exchange(
+                        endpoint,
+                        HttpMethod.POST,
+                        requestEntity,
+                        new ParameterizedTypeReference<PreSubmitCallbackResponse<BundleCaseData>>() {
+                        }
+                    ).getBody();
 
-        } catch (RestClientException e) {
+        } catch (HttpClientErrorException ex) {
+
+            log.error("HttpClientError Response:  {} ", ex.getResponseBodyAsString());
 
             throw new DocumentServiceResponseException(
-                    "Couldn't create bundle using API: " + endpoint,
-                    e
+                "Couldn't create bundle using API with client error:",
+                ex
             );
         }
+        catch(RestClientException e){
 
-        return response;
+                throw new DocumentServiceResponseException(
+                    "Couldn't create bundle using API: " + endpoint,
+                    e
+                );
+            }
+
+            return response;
+
+        }
 
     }
-
-}
