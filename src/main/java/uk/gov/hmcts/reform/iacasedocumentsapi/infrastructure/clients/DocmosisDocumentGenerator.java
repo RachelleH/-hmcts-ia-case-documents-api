@@ -81,7 +81,7 @@ public class DocmosisDocumentGenerator implements DocumentGenerator {
 
         } catch (HttpClientErrorException ex) {
 
-            log.error("Bundling HttpClientError Response:  {} ", ex.getResponseBodyAsString());
+            log.error("HttpClientError Response:  {} ", ex.getResponseBodyAsString());
 
             throw new DocumentServiceResponseException(
                 "Couldn't generate asylum case documents with docmosis",
